@@ -1,8 +1,7 @@
 import streamlit as st
 import psycopg2
 import pandas as pd
-import plotly.graph_objects as go
-import numpy as np
+import plotly.express as px
 
 
 # Function to connect to the database
@@ -62,7 +61,7 @@ def get_gene_expression_values(gene_expression_df, common_genes):
         return None
 
 conn = connect_to_database()
-st.title("GeneHarmony")
+st.title("Disease Name Dropdown Groups")
 st.write("Type to search and select disease names or add/remove groups:")
 
 # Fetch disease names
@@ -120,33 +119,34 @@ if st.button("Search"):
 gene_expression_df = load_gene_expression_data('/home/adam/PycharmProjects/Gene-Disease-DB/gtex_output.tsv')
 
 if gene_expression_df is not None:
+    # Display gene expression values for common genes
+    if st.session_state['search_results'] is not None:
+        common_genes = st.session_state['search_results']["Common Gene Names"].tolist()
+
+        gene_expression_subset = get_gene_expression_values(gene_expression_df, common_genes)
+
+        if gene_expression_subset is not None:
+            st.write("Gene Expression Values for Common Genes:")
+            st.write(gene_expression_subset)
+
+if gene_expression_df is not None:
     # Display gene expression values for common genes as a heatmap
     if st.session_state['search_results'] is not None:
         common_genes = st.session_state['search_results']["Common Gene Names"].tolist()
         gene_expression_subset = get_gene_expression_values(gene_expression_df, common_genes)
 
         if gene_expression_subset is not None:
-            # Create a long-format DataFrame for Plotly heatmap
-            gene_expression_long = gene_expression_subset.melt(id_vars=["Description"], var_name="Tissue", value_name="Expression")
-
-            # Apply natural logarithm adjustment + 1 to the z values
-            gene_expression_long["Expression"] = np.log1p(gene_expression_long["Expression"])
+            # Drop the "Gene" column for plotting
+            gene_expression_subset = gene_expression_subset.drop(columns=["Description"])
 
             # Create a Plotly heatmap
-            fig = go.Figure(data=go.Heatmap(
-                z=gene_expression_long["Expression"],
-                x=gene_expression_long["Tissue"],
-                y=gene_expression_long["Description"],
-                colorscale="Viridis"
-            ))
+            fig = px.imshow(gene_expression_subset, x=gene_expression_subset.columns, y=gene_expression_subset.index)
 
             # Customize the heatmap layout
             fig.update_layout(
-                xaxis_title="Tissue",
-                yaxis_title="Common Genes",
-                title="Gene Expression Heatmap",
-                height=1000,  # Adjust the height as needed
-                width=2000
+                xaxis_title="Tissue",  # Replace with an appropriate x-axis title
+                yaxis_title="Common Genes",  # Replace with an appropriate y-axis title
+                title="Gene Expression Heatmap",  # Replace with an appropriate title
             )
 
             # Display the heatmap
