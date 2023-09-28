@@ -40,24 +40,6 @@ def get_gene_names_for_diseases(conn, disease_group):
         st.error("Error fetching gene names: " + str(e))
         return []
 
-# Function to load gene expression data from a .tsv file
-def load_gene_expression_data(file_path):
-    try:
-        gene_expression_df = pd.read_csv(file_path, sep="\t")
-        return gene_expression_df
-    except Exception as e:
-        st.error("Error loading gene expression data: " + str(e))
-        return None
-
-# Function to get gene expression values for common genes
-def get_gene_expression_values(gene_expression_df, common_genes):
-    try:
-        gene_expression_subset = gene_expression_df[gene_expression_df['Description'].isin(common_genes)]
-        return gene_expression_subset
-    except Exception as e:
-        st.error("Error retrieving gene expression values: " + str(e))
-        return None
-
 conn = connect_to_database()
 st.title("Disease Name Dropdown Groups")
 st.write("Type to search and select disease names or add/remove groups:")
@@ -113,16 +95,7 @@ if st.button("Search"):
 
     st.session_state['search_results'] = search_results
 
-# Load gene expression data (Replace 'gene_expression_data.tsv' with the actual file path)
-gene_expression_df = load_gene_expression_data('/home/adam/PycharmProjects/Gene-Disease-DB/gtex_output.tsv')
-
-if gene_expression_df is not None:
-    # Display gene expression values for common genes
-    if st.session_state['search_results'] is not None:
-        common_genes = st.session_state['search_results']["Common Gene Names"].tolist()
-
-        gene_expression_subset = get_gene_expression_values(gene_expression_df, common_genes)
-
-        if gene_expression_subset is not None:
-            st.write("Gene Expression Values for Common Genes:")
-            st.write(gene_expression_subset)
+# Display search results
+if st.session_state['search_results'] is not None:
+    st.write("Common Gene Names:")
+    st.write(st.session_state['search_results'])
