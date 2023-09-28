@@ -1,5 +1,6 @@
-import streamlit as st
+import GeneHarmony as st
 import psycopg2
+# sudo systemctl start postgresql-16
 
 # Page configuration
 st.set_page_config(
@@ -33,7 +34,7 @@ if st.button("Search"):
     all_terms = [term for term in [search_terms] + st.session_state.additional_terms if term]
 
     # Connect to the database
-    conn = psycopg2.connect(host="localhost", database="sjogren", user="adam", password="password")
+    conn = psycopg2.connect(host="localhost", database="lab_db", user="postgres", password="password")
     cur = conn.cursor()
 
     # SQL queries
