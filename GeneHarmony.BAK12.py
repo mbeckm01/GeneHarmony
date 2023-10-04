@@ -8,6 +8,7 @@ import numpy as np
 
 # Function to connect to the database
 def connect_to_database():
+    try:
         # Define DB connection parameters
         conn = psycopg2.connect(
             dbname="lab_db",
@@ -17,9 +18,14 @@ def connect_to_database():
             port="5432"
         )
         return conn
+    except psycopg2.OperationalError as e:
+        # Display an error message in the app if the connection fails
+        st.error("Unable to connect to the database: " + str(e))
+        return None
 
 # Function to connect to the database and fetch disease names for the multiselect boxes
 def get_disease_names(conn):
+    try:
         # Cursor object to interact with the DB
         cursor = conn.cursor()
         # SQL query to fetch disease names
@@ -27,25 +33,41 @@ def get_disease_names(conn):
         # Extract disease names from the result and return as a list
         disease_names = [row[0] for row in cursor.fetchall()]
         return disease_names
+    except psycopg2.OperationalError as e:
+        # Display an error message in the app if the connection fails
+        st.error("Cannot fetch disease names: " + str(e))
+        return []
 
 # Function to execute a query to retrieve gene names for selected disease names
 def get_gene_names_for_diseases(conn, disease_group):
+    try:
         cursor = conn.cursor()
         # SQL query to fetch distinct gene names for the given diseases
         query = "SELECT DISTINCT gene_name FROM gene_disease WHERE disease_name IN %s;"
         cursor.execute(query, (tuple(disease_group),))
         gene_names = [row[0] for row in cursor.fetchall()]
         return gene_names
+    except psycopg2.DatabaseError as e:
+        st.error("Error fetching gene names: " + str(e))
+        return []
 
 # Function to load gene expression data from a .tsv file
 def load_gene_expression_data(file_path):
+    try:
         gene_expression_df = pd.read_csv(file_path, sep="\t")
         return gene_expression_df
+    except Exception as e:
+        st.error("Error loading gene expression data: " + str(e))
+        return None
 
 # Function to get gene expression values for common genes
 def get_gene_expression_values(gene_expression_df, common_genes):
+    try:
         gene_expression_subset = gene_expression_df[gene_expression_df['Description'].isin(common_genes)]
         return gene_expression_subset
+    except Exception as e:
+        st.error("Error retrieving gene expression values: " + str(e))
+        return None
 
 conn = connect_to_database()
 st.title("GeneHarmony")
