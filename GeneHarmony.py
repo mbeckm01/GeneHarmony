@@ -13,10 +13,10 @@ st.set_page_config(
 def connect_to_database():
         # Define DB connection parameters
         conn = psycopg2.connect(
-            dbname="lab_db",
+            dbname="postgres",
             user="postgres",
             password="password",
-            host="localhost",
+            host='10.0.0.119', #"localhost", #(10.0.0.119 is postgres on proxmox, must be local or use vpn)
             port="5432"
         )
         return conn
@@ -70,55 +70,53 @@ def get_source_clean_values(conn):
     return values
 
 
-
-
-
 conn = connect_to_database()
-st.title("GeneHarmony")
-st.write("Type to search and select disease names or add/remove groups:")
+st.sidebar.title("GeneHarmony")
+st.sidebar.write("Add diseases to groups to identify genes associated with all diseases within the group.")
+st.sidebar.write("Add groups to filter genes associated across diseases groups.")
+
 
 # Fetch disease names
 disease_names = get_disease_names(conn)
 
 # Initialize session state
-if 'num_groups' not in st.session_state:
-    st.session_state['num_groups'] = 1
-    st.session_state['selections'] = {}
-    st.session_state['search_results'] = None
-    st.session_state['temp_selections'] = {}
-    st.session_state.setdefault('searched', False)
+st.session_state['num_groups'] = 1
+st.session_state['selections'] = {}
+st.session_state['search_results'] = None
+st.session_state['temp_selections'] = {}
+st.session_state.setdefault('searched', False)
 
 
-# Add Group button
-if st.button("Add Group"):
+# Add Group button, adds to num_groups
+if st.sidebar.button("Add Group"):
     st.session_state['num_groups'] += 1
 
-# Remove Group button
-if st.button("Remove Group") and st.session_state['num_groups'] > 1:
+# Remove Group button, subtracts from num_groups
+if st.sidebar.button("Remove Group") and st.session_state['num_groups'] > 1:
     st.session_state['num_groups'] -= 1
 
-# Create columns to control the layout
-col1, col2, col3 = st.columns([1, 2, 1])
+# Set the number of groups
+num_groups = st.session_state['num_groups']
 
-with col1:  # Use the middle column which has more space allocated to it
-    min_confidence, max_confidence = st.slider(
-        "Select a range for the confidence score",
-        min_value=0.0,
-        max_value=5.0,
-        value=(0.0, 5.0),
-        step=0.1
-    )
+
+# Add a confidence score filter slider
+min_confidence, max_confidence = st.sidebar.slider(
+    "Filter based on gene-disease confidence score",
+    min_value=0.0,
+    max_value=5.0,
+    value=(0.0, 5.0),
+    step=0.1
+)
 
 # Fetch source_clean values
 source_clean_values = get_source_clean_values(conn)
 
-selected_source_clean = st.multiselect(
-    "Select Source Type",
+selected_source_clean = st.sidebar.multiselect(
+    "Select a gene-disease data source",
     source_clean_values
 )
 
-# Set the number of groups
-num_groups = st.session_state['num_groups']
+
 
 # Create and update multiselects for each group
 for i in range(num_groups):
@@ -203,9 +201,9 @@ if gene_expression_df is not None:
             fig.update_layout(
                 xaxis_title="Tissue",
                 yaxis_title="Common Genes",
-                title="Gene Expression Heatmap",
-                height=1000,  # Adjust the height as needed
-                width=2000
+                title="Gene Expression Heatmap"
+                #height=1000,  # Adjust the height as needed
+                #width=2000
             )
 
             # Display the heatmap
