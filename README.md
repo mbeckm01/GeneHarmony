@@ -18,9 +18,9 @@ To set up a PostgreSQL database for the Gene-Disease-DB:
 
 ## Step 2: Download the Database Dump
 
-Download the database dump from OneDrive:
+Download the database dump from Archive.org:
 
-- [Download database dump] (https://1drv.ms/u/s!Al0sfIh-a3z9gYAdvIxLlAjAMPyV8w?e=WLzxGE)
+- [Download database dump] (https://archive.org/download/postgres_10_0_0_119-2023_11_21_09_16_42-dump/postgres_10_0_0_119-2023_11_21_09_16_42-dump_archive.torrent)
 - Save the file to a known location on your computer for use in the next step.
 
 ## Step 3: Restore the Database
