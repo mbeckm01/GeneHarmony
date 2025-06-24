@@ -23,6 +23,8 @@ Download the database dump from Archive.org:
 - [Download database dump] (https://archive.org/download/postgres_10_0_0_119-2023_11_21_09_16_42-dump/postgres_10_0_0_119-2023_11_21_09_16_42-dump_archive.torrent)
 - Save the file to a known location on your computer for use in the next step.
 
+-Download the gtex_output.tsv file 
+- Save the file to a known location on your computer for use with the python script.
 ## Step 3: Restore the Database
 
 Restore the database from the downloaded dump file:
@@ -52,7 +54,7 @@ If you prefer using Miniconda for managing Python environments:
 Install Streamlit and other required packages:
 
 ```bash
-pip install streamlit psycopg2-binary plotly pandas
+pip install streamlit psycopg2-binary plotly pandas matplotlib_venn kaleido
 ```
 
 ## Step 6: Run the Streamlit App
